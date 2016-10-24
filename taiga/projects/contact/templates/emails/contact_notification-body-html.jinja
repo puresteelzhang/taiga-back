@@ -1,0 +1,25 @@
+{% extends "emails/base-body-html.jinja" %}
+
+{% block body %}
+    <p>
+    {% if photo_url %}
+        <a href="{{ user_profile_url }}" title="{{ full_name }}">
+            <img src="{{ photo_url }}" alt="{{ full_name }}" width="35" height="35"/>
+        </a>
+    {% endif %}
+    {% trans full_name=full_name, comment=comment, project_name=project_name %}
+        <a href="{{ user_profile_url }}" title="{{ full_name }}">{{ full_name }}</a> has written to {{ project_name }}
+    {% endtrans %}
+    </p>
+
+    <p>{{ comment }}</p>
+
+    ---------------
+
+    <p>
+    {% trans project_name=project_name %}
+        You are receiving this message because you are an administrator for the project {{ project_name }}. If you don't want Taiga users can contact the project you can <a href="{{ project_settings_url }}"> update your project settings</a>.
+    {% endtrans %}
+    </p>
+
+{% endblock %}
