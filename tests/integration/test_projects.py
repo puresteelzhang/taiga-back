@@ -2095,3 +2095,28 @@ def test_color_tags_project_fired_on_element_update_respecting_color():
     user_story.save()
     project = Project.objects.get(id=user_story.project.id)
     assert ["tag", "#123123"] in project.tags_colors
+
+
+
+
+
+
+def test_duplicate_project(client):
+    user = f.UserFactory.create()
+    project = f.ProjectFactory.create(owner=user)
+    role = f.RoleFactory.create(project=project, permissions=["view_project"])
+    membership = f.MembershipFactory.create(project=project, user=user, role=role, is_admin=True)
+    url = reverse("projects-duplicate", args=(project.id,))
+
+    data = {
+        "name": "test",
+        "description": "description",
+        "is_private": True,
+        "bulk_memberships": []
+    }
+
+    client.login(user)
+    response = client.json.post(url, json.dumps(data))
+    print(response.data)
+    asd
+    assert response.status_code == 201

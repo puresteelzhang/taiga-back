@@ -19,7 +19,9 @@
 from django.apps import apps
 from django.utils.translation import ugettext as _
 from taiga.celery import app
+from taiga.permissions import services as permissions_services
 from .. import choices
+from .members import create_members_in_bulk
 
 ERROR_MAX_PUBLIC_PROJECTS_MEMBERSHIPS = 'max_public_projects_memberships'
 ERROR_MAX_PRIVATE_PROJECTS_MEMBERSHIPS = 'max_private_projects_memberships'
@@ -219,3 +221,19 @@ def delete_project(project_id):
 
     project.delete_related_content()
     project.delete()
+
+
+def duplicate_project(project, bulk_memberships=[], **new_project_extra_args):
+    Template = apps.get_model("projects", "ProjectTemplate")
+    Project = apps.get_model("projects", "Project")
+
+    template = Template.objects.create()
+    template.load_data_from_project(project)
+    new_project = Project.objects.create(creation_template=template, **new_project_extra_args)
+    permissions_services.set_base_permissions_for_project(new_project)
+    new_project.creation_template = project.creation_template
+    template.delete()
+    new_project.save()
+    create_members_in_bulk(bulk_memberships, project=new_project)
+    print(new_project.slug)
+    return new_project

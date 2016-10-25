@@ -777,6 +777,8 @@ class ProjectTemplate(models.Model):
     def save(self, *args, **kwargs):
         if not self._importing or not self.modified_date:
             self.modified_date = timezone.now()
+        if not self.slug:
+            self.slug = slugify_uniquely(self.name, self.__class__)
         super().save(*args, **kwargs)
 
     def load_data_from_project(self, project):

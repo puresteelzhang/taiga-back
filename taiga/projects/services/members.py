@@ -116,7 +116,7 @@ def check_if_project_can_have_more_memberships(project, total_new_memberships):
     """
     if project.owner is None:
         return False, _("Project without owner")
-        
+
     if project.is_private:
         total_memberships = project.memberships.count() + total_new_memberships
         max_memberships = project.owner.max_memberships_private_projects
