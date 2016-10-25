@@ -46,7 +46,7 @@ class BulkCreator(object):
 
     def create_element(self, element):
         self.timeline_objects.append(element)
-        if len(self.timeline_objects) > 1000:
+        if len(self.timeline_objects) > 999:
             self.flush()
 
     def flush(self):
