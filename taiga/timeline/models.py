@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.db import models
-from django.contrib.postgres.fields import JSONField
+from taiga.base.db.models.fields import JSONField
 from django.utils import timezone
 
 from django.contrib.contenttypes.models import ContentType

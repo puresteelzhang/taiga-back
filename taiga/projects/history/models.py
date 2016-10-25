@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.functional import cached_property
-from django.contrib.postgres.fields import JSONField
+from taiga.base.db.models.fields import JSONField
 
 from taiga.mdrender.service import get_diff_of_htmls
 

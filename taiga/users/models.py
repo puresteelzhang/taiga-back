@@ -34,7 +34,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from django.contrib.postgres.fields import JSONField
+from taiga.base.db.models.fields import JSONField
 from django_pglocks import advisory_lock
 
 from taiga.auth.tokens import get_token_for_user

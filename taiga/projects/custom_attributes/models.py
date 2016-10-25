@@ -20,7 +20,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
-from django.contrib.postgres.fields import JSONField
+from taiga.base.db.models.fields import JSONField
 
 from taiga.base.utils.time import timestamp_ms
 from taiga.projects.occ.mixins import OCCModelMixin

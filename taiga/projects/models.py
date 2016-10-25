@@ -29,7 +29,7 @@ from django.utils.functional import cached_property
 
 from django_pglocks import advisory_lock
 
-from django.contrib.postgres.fields import JSONField
+from taiga.base.db.models.fields import JSONField
 
 from taiga.base.utils.time import timestamp_ms
 from taiga.projects.tagging.models import TaggedMixin

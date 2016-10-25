@@ -90,9 +90,6 @@ def remove_files_on_delete(sender, instance, **kwargs):
 
 
 def connect_cleanup_files_signals():
-    connections = ConnectionHandler()
-    backend = connections[DEFAULT_DB_ALIAS]
-
     for model in _find_models_with_filefield():
         pre_save.connect(remove_files_on_change, sender=model)
         post_delete.connect(remove_files_on_delete, sender=model)

@@ -19,7 +19,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from django.contrib.postgres.fields import JSONField
+from taiga.base.db.models.fields import JSONField
 
 
 class Webhook(models.Model):
