@@ -50,7 +50,6 @@ class BulkCreator(object):
             self.flush()
 
     def flush(self):
-        print()
         Timeline.objects.bulk_create(self.timeline_objects, batch_size=1000)
         del self.timeline_objects
         self.timeline_objects = []

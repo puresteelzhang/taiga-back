@@ -29,6 +29,8 @@ import struct
 from unittest.mock import MagicMock, patch
 
 from django.core.urlresolvers import reverse
+from django.utils import timezone
+
 from django.apps import apps
 from .. import factories as f
 
@@ -931,7 +933,7 @@ def test_retrieve_notify_policies_by_anonymous_user(client):
 
 def test_ms_thread_id():
     id = '<test/message@localhost>'
-    now = datetime.datetime.now()
+    now = timezone.now()
 
     index = services.make_ms_thread_index(id, now)
     parsed = parse_ms_thread_index(index)
