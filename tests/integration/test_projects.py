@@ -2100,17 +2100,62 @@ def test_color_tags_project_fired_on_element_update_respecting_color():
 def test_duplicate_project(client):
     user = f.UserFactory.create()
     project = f.ProjectFactory.create(owner=user)
+    project.tags = ["tag1", "tag2"]
+    project.tags_colors = [["t1", "#abcbca"], ["t2", "#aaabbb"]]
+
+    project.default_epic_status = f.EpicStatusFactory.create(project=project)
+    project.default_us_status = f.UserStoryStatusFactory.create(project=project)
+    project.default_task_status = f.TaskStatusFactory.create(project=project)
+    project.default_issue_status = f.IssueStatusFactory.create(project=project)
+    project.default_points = f.PointsFactory.create(project=project)
+    project.default_issue_type = f.IssueTypeFactory.create(project=project)
+    project.default_priority = f.PriorityFactory.create(project=project)
+    project.default_severity = f.SeverityFactory.create(project=project)
+    project.save()
+
     role = f.RoleFactory.create(project=project, permissions=["view_project"])
-    membership = f.MembershipFactory.create(project=project, user=user, role=role, is_admin=True)
+    f.MembershipFactory.create(project=project, user=user, role=role, is_admin=True)
+    membership = f.MembershipFactory.create(project=project, role=role)
     url = reverse("projects-duplicate", args=(project.id,))
 
     data = {
         "name": "test",
         "description": "description",
-        "is_private": True,
-        "bulk_memberships": []
+        "is_private": True
     }
 
     client.login(user)
     response = client.json.post(url, json.dumps(data))
     assert response.status_code == 201
+
+    new_project = Project.objects.get(id=response.data["id"])
+
+    assert set(project.tags) == set(new_project.tags)
+    assert set(dict(project.tags_colors).keys()) == set(dict(new_project.tags_colors).keys())
+
+    attributes = [
+        "is_epics_activated", "is_backlog_activated", "is_kanban_activated", "is_wiki_activated",
+        "is_issues_activated", "videoconferences", "videoconferences_extra_data",
+    ]
+
+    for attr in attributes:
+        assert getattr(project, attr) == getattr(new_project, attr)
+
+    fk_attributes = [
+        "default_epic_status", "default_us_status", "default_task_status", "default_issue_status",
+        "default_issue_type", "default_points", "default_priority", "default_severity",
+    ]
+
+    for attr in fk_attributes:
+        assert getattr(project, attr).name == getattr(new_project, attr).name
+
+    related_attributes = [
+        "epic_statuses", "us_statuses", "task_statuses","issue_statuses",
+        "issue_types", "points", "priorities", "severities",
+        "epiccustomattributes", "userstorycustomattributes", "taskcustomattributes", "issuecustomattributes",
+        "roles"
+    ]
+    for attr in related_attributes:
+        from_names = set(getattr(project, attr).all().values_list("name", flat=True))
+        to_names = set(getattr(new_project, attr).all().values_list("name", flat=True))
+        assert from_names == to_names

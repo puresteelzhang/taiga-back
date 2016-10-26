@@ -415,9 +415,7 @@ class ProjectViewSet(LikedResourceMixin, HistoryResourceMixin,
         if not enough_slots:
             raise exc.NotEnoughSlotsForProject(is_private, total_memberships, error_message)
 
-        #TODO extract data from validator
         new_project = services.duplicate_project(
-            bulk_memberships={},
             project=project,
             owner=request.user,
             name=data["name"],

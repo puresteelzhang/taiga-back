@@ -254,4 +254,3 @@ class DuplicateProjectValidator(validators.Validator):
     name = serializers.CharField()
     description = serializers.CharField()
     is_private = serializers.BooleanField()
-    bulk_memberships = _MemberBulkValidator(many=True, required=False)

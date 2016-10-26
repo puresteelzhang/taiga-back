@@ -32,8 +32,12 @@ from django_pglocks import advisory_lock
 from django_pgjson.fields import JsonField
 
 from taiga.base.utils.time import timestamp_ms
+from taiga.projects.custom_attributes.models import EpicCustomAttribute
+from taiga.projects.custom_attributes.models import UserStoryCustomAttribute
+from taiga.projects.custom_attributes.models import TaskCustomAttribute
+from taiga.projects.custom_attributes.models import IssueCustomAttribute
 from taiga.projects.tagging.models import TaggedMixin
-from taiga.projects.tagging.models import TagsColorsdMixin
+from taiga.projects.tagging.models import TagsColorsMixin
 from taiga.base.utils.files import get_file_path
 from taiga.base.utils.slug import slugify_uniquely
 from taiga.base.utils.slug import slugify_uniquely_for_queryset
@@ -139,7 +143,7 @@ class ProjectDefaults(models.Model):
         abstract = True
 
 
-class Project(ProjectDefaults, TaggedMixin, TagsColorsdMixin, models.Model):
+class Project(ProjectDefaults, TaggedMixin, TagsColorsMixin, models.Model):
     name = models.CharField(max_length=250, null=False, blank=False,
                             verbose_name=_("name"))
     slug = models.SlugField(max_length=250, unique=True, null=False, blank=True,
@@ -717,7 +721,7 @@ class IssueType(models.Model):
         return self.name
 
 
-class ProjectTemplate(models.Model):
+class ProjectTemplate(TaggedMixin, TagsColorsMixin, models.Model):
     name = models.CharField(max_length=250, null=False, blank=False,
                             verbose_name=_("name"))
     slug = models.SlugField(max_length=250, null=False, blank=True,
@@ -761,6 +765,11 @@ class ProjectTemplate(models.Model):
     priorities = JsonField(null=True, blank=True, verbose_name=_("priorities"))
     severities = JsonField(null=True, blank=True, verbose_name=_("severities"))
     roles = JsonField(null=True, blank=True, verbose_name=_("roles"))
+    epic_custom_attributes = JsonField(null=True, blank=True, verbose_name=_("epic custom attributes"))
+    us_custom_attributes = JsonField(null=True, blank=True, verbose_name=_("us custom attributes"))
+    task_custom_attributes = JsonField(null=True, blank=True, verbose_name=_("task custom attributes"))
+    issue_custom_attributes = JsonField(null=True, blank=True, verbose_name=_("issue custom attributes"))
+
     _importing = None
 
     class Meta:
@@ -885,11 +894,50 @@ class ProjectTemplate(models.Model):
                 "computable": role.computable
             })
 
+        self.epic_custom_attributes = []
+        for ca in project.epiccustomattributes.all():
+            self.epic_custom_attributes.append({
+                "name": ca.name,
+                "description": ca.description,
+                "type": ca.type,
+                "order": ca.order
+            })
+
+        self.us_custom_attributes = []
+        for ca in project.userstorycustomattributes.all():
+            self.us_custom_attributes.append({
+                "name": ca.name,
+                "description": ca.description,
+                "type": ca.type,
+                "order": ca.order
+            })
+
+        self.task_custom_attributes = []
+        for ca in project.taskcustomattributes.all():
+            self.task_custom_attributes.append({
+                "name": ca.name,
+                "description": ca.description,
+                "type": ca.type,
+                "order": ca.order
+            })
+
+        self.issue_custom_attributes = []
+        for ca in project.issuecustomattributes.all():
+            self.issue_custom_attributes.append({
+                "name": ca.name,
+                "description": ca.description,
+                "type": ca.type,
+                "order": ca.order
+            })
+
         try:
             owner_membership = Membership.objects.get(project=project, user=project.owner)
             self.default_owner_role = owner_membership.role.slug
         except Membership.DoesNotExist:
             self.default_owner_role = self.roles[0].get("slug", None)
+
+        self.tags = project.tags
+        self.tags_colors = project.tags_colors
 
     def apply_to_project(self, project):
         Role = apps.get_model("users", "Role")
@@ -1020,4 +1068,42 @@ class ProjectTemplate(models.Model):
             project.default_severity = Severity.objects.get(name=self.default_options["severity"],
                                                             project=project)
 
+        for ca in self.epic_custom_attributes:
+            EpicCustomAttribute.objects.create(
+                name=ca["name"],
+                description=ca["description"],
+                type=ca["type"],
+                order=ca["order"],
+                project=project
+            )
+
+        for ca in self.us_custom_attributes:
+            UserStoryCustomAttribute.objects.create(
+                name=ca["name"],
+                description=ca["description"],
+                type=ca["type"],
+                order=ca["order"],
+                project=project
+            )
+
+        for ca in self.task_custom_attributes:
+            TaskCustomAttribute.objects.create(
+                name=ca["name"],
+                description=ca["description"],
+                type=ca["type"],
+                order=ca["order"],
+                project=project
+            )
+
+        for ca in self.issue_custom_attributes:
+            IssueCustomAttribute.objects.create(
+                name=ca["name"],
+                description=ca["description"],
+                type=ca["type"],
+                order=ca["order"],
+                project=project
+            )
+
+        project.tags = self.tags
+        project.tags_colors = self.tags_colors
         return project
