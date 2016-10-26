@@ -52,9 +52,9 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             """
                 ALTER TABLE {table_name}
-                   ALTER COLUMN {column_name}
+                   ALTER COLUMN "{column_name}"
                            TYPE jsonb
-                          USING {column_name}::text::jsonb;
+                          USING "{column_name}"::text::jsonb;
             """.format(
                 table_name="history_historyentry",
                 column_name="user",

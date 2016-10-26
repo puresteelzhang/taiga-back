@@ -13,16 +13,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.runsql(
+        migrations.RunSQL(
             """
-                alter table {table_name}
-                   alter column {column_name}
-                           type jsonb
-                          using {column_name}::text::jsonb;
+                ALTER TABLE {table_name}
+                   ALTER COLUMN {column_name}
+                           TYPE jsonb
+                          USING {column_name}::text::jsonb;
             """.format(
                 table_name="timeline_timeline",
                 column_name="data",
             ),
-            reverse_sql=migrations.runsql.noop
+            reverse_sql=migrations.RunSQL.noop
         ),
     ]
