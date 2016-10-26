@@ -2097,10 +2097,6 @@ def test_color_tags_project_fired_on_element_update_respecting_color():
     assert ["tag", "#123123"] in project.tags_colors
 
 
-
-
-
-
 def test_duplicate_project(client):
     user = f.UserFactory.create()
     project = f.ProjectFactory.create(owner=user)
@@ -2117,6 +2113,4 @@ def test_duplicate_project(client):
 
     client.login(user)
     response = client.json.post(url, json.dumps(data))
-    print(response.data)
-    asd
     assert response.status_code == 201

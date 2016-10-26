@@ -227,13 +227,14 @@ def duplicate_project(project, bulk_memberships=[], **new_project_extra_args):
     Template = apps.get_model("projects", "ProjectTemplate")
     Project = apps.get_model("projects", "Project")
 
-    template = Template.objects.create()
+    template = Template() #.objects.create()
     template.load_data_from_project(project)
-    new_project = Project.objects.create(creation_template=template, **new_project_extra_args)
+    # new_project = Project.objects.create(creation_template=template, **new_project_extra_args)
+    new_project = Project.objects.create(**new_project_extra_args)
     permissions_services.set_base_permissions_for_project(new_project)
-    new_project.creation_template = project.creation_template
-    template.delete()
-    new_project.save()
+    template.apply_to_project(new_project)
+    #new_project.creation_template = project.creation_template
+    #template.delete()
+    #new_project.save()
     create_members_in_bulk(bulk_memberships, project=new_project)
-    print(new_project.slug)
     return new_project
